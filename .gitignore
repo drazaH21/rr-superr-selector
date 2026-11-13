@@ -1,0 +1,5 @@
+﻿6af458274c1e8_data_pack/
+*.zip
+__pycache__/
+.venv/
+.DS_Store
