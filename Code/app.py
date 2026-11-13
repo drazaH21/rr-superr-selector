@@ -7,7 +7,7 @@ Best    : run with the dark base theme so native widgets (date pickers, tooltips
 
   streamlit run app.py --theme.base dark --theme.backgroundColor "#070D1E" --theme.secondaryBackgroundColor "#0F1C3F" --theme.textColor "#F1F5F9" --theme.primaryColor "#EA1A85"
 
-Paths   : defaults to the D:\\ folders below. Override without editing:
+Paths   : auto-resolved (env var, repo folders such as step2_outputs/ and "Data Pack"/, then the D:\\ folders). Override without editing:
               set RR_STEP2_DIR=D:\\RR SupeRR Hackathon\\step2_outputs
               set RR_DATA_DIR=D:\\RR SupeRR Hackathon\\6af458274c1e8_data_pack\\Data Pack
           or use the sidebar "Data locations" box.
@@ -173,8 +173,6 @@ except ImportError as exc:  # pragma: no cover
     st.stop()
 
 HIGH_PI_DEFAULT = 0.65
-DEFAULT_STEP2 = os.environ.get("RR_STEP2_DIR", r"D:\RR SupeRR Hackathon\step2_outputs")
-DEFAULT_DATA = os.environ.get("RR_DATA_DIR", r"D:\RR SupeRR Hackathon\6af458274c1e8_data_pack\Data Pack")
 
 FILES = {
     "bat": ["batters_metrics.parquet", "batters_metrics.csv", "all_batters_metrics.csv"],
@@ -184,6 +182,35 @@ FILES = {
     "balls": ["ball_pressure.parquet"],
     "config": ["pressure_config.json"],
 }
+
+# --- data location: works on local Windows and on Streamlit Cloud (Linux, repo checkout) --------------------------------
+APP_DIR = Path(__file__).resolve().parent
+REPO_ROOT = APP_DIR.parent if APP_DIR.name.lower() == "code" else APP_DIR
+
+
+def first_valid_dir(candidates: list, markers: list) -> Path | None:
+    """First candidate folder that exists AND contains at least one expected file (an empty env var or '.' never wins by accident)."""
+    for c in candidates:
+        if not c:
+            continue
+        p = Path(c)
+        try:
+            if p.is_dir() and any((p / m).exists() for m in markers):
+                return p
+        except OSError:
+            continue
+    return None
+
+
+_win_step2 = r"D:\RR SupeRR Hackathon\step2_outputs"
+_win_data = r"D:\RR SupeRR Hackathon\6af458274c1e8_data_pack\Data Pack"
+DEFAULT_STEP2 = str(first_valid_dir(
+    [os.getenv("RR_STEP2_DIR"), REPO_ROOT / "step2_outputs", APP_DIR / "step2_outputs", Path("step2_outputs"), _win_step2],
+    FILES["bat"] + FILES["bowl"] + FILES["bat_top"]) or (REPO_ROOT / "step2_outputs"))
+DEFAULT_DATA = str(first_valid_dir(
+    [os.getenv("RR_DATA_DIR"), REPO_ROOT / "Data Pack", REPO_ROOT / "data", REPO_ROOT / "data_pack", APP_DIR / "Data Pack", APP_DIR / "data",
+     REPO_ROOT, APP_DIR, _win_data], ["matches.csv"]) or (REPO_ROOT / "Data Pack"))
+
 DEFAULT_CFG = dict(
     high_pi=0.65, med_pi=0.45,
     weights_chase=dict(state=0.35, rate=0.15, late=0.20, close=0.30),
@@ -1010,7 +1037,7 @@ def main() -> None:
                 '<p>Most reliable players under pressure · IPL + T20I from 2022 · Halla Bol</p></div>', unsafe_allow_html=True)
 
     if not Path(step2).exists():
-        st.error(f"Step-2 folder not found: `{step2}`. Fix it in the sidebar or set RR_STEP2_DIR.")
+        st.error(f"Step-2 folder not found: `{step2}`. Put step2_outputs/ next to app.py (or in the repo root), fix it in the sidebar, or set RR_STEP2_DIR.")
         st.stop()
     try:
         loaded = load_players(step2)
