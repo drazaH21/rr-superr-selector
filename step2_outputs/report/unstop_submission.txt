@@ -1,0 +1,23 @@
+TOP 10 BATTERS (Unstop dropdowns, rank 1 to 10)
+ 1. Suryakumar Yadav
+ 2. Dinesh Karthik
+ 3. David Miller
+ 4. Mark Chapman
+ 5. Towhid Hridoy
+ 6. Jos Buttler
+ 7. Tristan Stubbs
+ 8. Rohit Sharma
+ 9. Shubman Gill
+10. Jaker Ali Anik
+
+TOP 10 BOWLERS (Unstop dropdowns, rank 1 to 10)
+ 1. Sufiyan Muqeem
+ 2. Sunil Narine
+ 3. Varun Chakravarthy
+ 4. Mitchell Santner
+ 5. Jamie Overton
+ 6. Umran Malik
+ 7. Abrar Ahmed
+ 8. Matheesha Pathirana
+ 9. Mustafizur Rahman
+10. Rashid Khan
